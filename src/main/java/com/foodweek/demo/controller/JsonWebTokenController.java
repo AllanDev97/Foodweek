@@ -21,7 +21,6 @@ public class JsonWebTokenController {
     private final JwtUtil jwtUtil;
     private final PasswordEncoder passwordEncoder = new BCryptPasswordEncoder(); //  Définition correcte
 
-    @Autowired
     public JsonWebTokenController(UserRepository playerRepository, JwtUtil jwtUtil) {
         this.playerRepository = playerRepository;
         this.jwtUtil = jwtUtil;
