@@ -4,6 +4,7 @@ import com.foodweek.demo.model.User;
 import com.foodweek.demo.dto.UserDTO;
 import com.foodweek.demo.repository.UserRepository;
 import com.foodweek.demo.security.JwtUtil;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -17,21 +18,23 @@ import java.util.Optional;
 @RequestMapping("/api")
 public class JsonWebTokenController {
 
-    private final UserRepository playerRepository;
+    private final UserRepository userRepository;
     private final JwtUtil jwtUtil;
     private final PasswordEncoder passwordEncoder = new BCryptPasswordEncoder(); //  Définition correcte
 
-    public JsonWebTokenController(UserRepository playerRepository, JwtUtil jwtUtil) {
-        this.playerRepository = playerRepository;
+
+    public JsonWebTokenController(UserRepository userRepository, JwtUtil jwtUtil) {
+        this.userRepository = userRepository;
         this.jwtUtil = jwtUtil;
     }
+
 
     @PostMapping("/login")
     public Map<String, String> login(@RequestBody UserDTO authRequest) {
         Map<String, String> response = new HashMap<>();
 
         //  Vérifier si l'admin existe, sinon le créer
-        Optional<User> adminOptional = playerRepository.findByUsername("admin");
+        Optional<User> adminOptional = userRepository.findByUsername("admin");
 
         if (adminOptional.isEmpty()) {
             String hashedPassword = passwordEncoder.encode("admin"); // Hachage sécurisé du mot de passe
@@ -41,11 +44,11 @@ public class JsonWebTokenController {
             adminUser.setEmail("admin@example.com");
             adminUser.setPassword(hashedPassword);
 
-            playerRepository.save(adminUser); //  Création d'un admin si inexistant
+            userRepository.save(adminUser); //  Création d'un admin si inexistant
         }
 
         //  Vérifier si l'utilisateur existe
-        Optional<User> playerOptional = playerRepository.findByUsername(authRequest.getUsername());
+        Optional<User> playerOptional = userRepository.findByUsername(authRequest.getUsername());
 
         if (playerOptional.isPresent()) {
             User player = playerOptional.get();
