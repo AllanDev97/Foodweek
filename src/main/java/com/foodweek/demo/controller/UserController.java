@@ -22,10 +22,9 @@ public class UserController {
         this.passwordEncoder = passwordEncoder;
     }
 
-    // 🔹 Route pour créer un utilisateur avec un mot de passe haché
+    // CREATE : Créer un utilisateur
     @PostMapping("/users")
     public ResponseEntity<String> createUser(@RequestBody UserDTO userDTO) {
-        // Vérifier si l'email ou le username existent déjà
         if (userRepository.findByUsername(userDTO.getUsername()).isPresent()) {
             return ResponseEntity.badRequest().body("Le nom d'utilisateur existe déjà.");
         }
@@ -33,19 +32,73 @@ public class UserController {
             return ResponseEntity.badRequest().body("L'email est déjà utilisé.");
         }
 
-        // Hacher le mot de passe
         String hashedPassword = passwordEncoder.encode(userDTO.getPassword());
 
-        // Créer un nouvel utilisateur
         User newUser = new User();
         newUser.setUsername(userDTO.getUsername());
         newUser.setEmail(userDTO.getEmail());
-        newUser.setPassword(hashedPassword); // Stocker le mot de passe haché
+        newUser.setPassword(hashedPassword);
 
-        // Enregistrer en base de données
         userRepository.save(newUser);
-
         return ResponseEntity.ok("Utilisateur créé avec succès.");
     }
+
+    // READ : Récupérer un utilisateur par son ID
+    @GetMapping("/users/{id}")
+    public ResponseEntity<?> getUserById(@PathVariable Long id) {
+        Optional<User> user = userRepository.findById(id);
+        return user.map(ResponseEntity::ok)
+                   .orElseGet(() -> ResponseEntity.notFound().build());
+    }
+
+    // READ ALL : Récupérer tous les utilisateurs
+    @GetMapping("/users")
+    public ResponseEntity<?> getAllUsers() {
+        return ResponseEntity.ok(userRepository.findAll());
+    }
+
+    // UPDATE : Mettre à jour un utilisateur
+    @PutMapping("/users/{id}")
+    public ResponseEntity<String> updateUser(@PathVariable Long id, @RequestBody UserDTO userDTO) {
+        Optional<User> optionalUser = userRepository.findById(id);
+        if (optionalUser.isEmpty()) {
+            return ResponseEntity.notFound().build();
+        }
+
+        User user = optionalUser.get();
+
+        // Vérifie si le nouveau username ou email est déjà utilisé par un autre utilisateur
+        if (!user.getUsername().equals(userDTO.getUsername()) &&
+            userRepository.findByUsername(userDTO.getUsername()).isPresent()) {
+            return ResponseEntity.badRequest().body("Le nom d'utilisateur est déjà pris.");
+        }
+
+        if (!user.getEmail().equals(userDTO.getEmail()) &&
+            userRepository.findByEmail(userDTO.getEmail()).isPresent()) {
+            return ResponseEntity.badRequest().body("L'email est déjà utilisé.");
+        }
+
+        user.setUsername(userDTO.getUsername());
+        user.setEmail(userDTO.getEmail());
+
+        if (userDTO.getPassword() != null && !userDTO.getPassword().isBlank()) {
+            String hashedPassword = passwordEncoder.encode(userDTO.getPassword());
+            user.setPassword(hashedPassword);
+        }
+
+        userRepository.save(user);
+        return ResponseEntity.ok("Utilisateur mis à jour avec succès.");
+    }
+
+    // DELETE : Supprimer un utilisateur
+    @DeleteMapping("/users/{id}")
+    public ResponseEntity<String> deleteUser(@PathVariable Long id) {
+        if (!userRepository.existsById(id)) {
+            return ResponseEntity.notFound().build();
+        }
+        userRepository.deleteById(id);
+        return ResponseEntity.ok("Utilisateur supprimé avec succès.");
+    }
 }
+
 

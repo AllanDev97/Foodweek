@@ -20,49 +20,47 @@ public class JsonWebTokenController {
 
     private final UserRepository userRepository;
     private final JwtUtil jwtUtil;
-    private final PasswordEncoder passwordEncoder = new BCryptPasswordEncoder(); //  Définition correcte
+    private final PasswordEncoder passwordEncoder;
 
-
-    public JsonWebTokenController(UserRepository userRepository, JwtUtil jwtUtil) {
+    public JsonWebTokenController(UserRepository userRepository, JwtUtil jwtUtil, PasswordEncoder passwordEncoder) {
         this.userRepository = userRepository;
         this.jwtUtil = jwtUtil;
+        this.passwordEncoder = passwordEncoder;
     }
-
 
     @PostMapping("/login")
     public Map<String, String> login(@RequestBody UserDTO authRequest) {
         Map<String, String> response = new HashMap<>();
 
-        //  Vérifier si l'admin existe, sinon le créer
+        // Vérifier si l'admin existe, sinon le créer
         Optional<User> adminOptional = userRepository.findByUsername("admin");
 
         if (adminOptional.isEmpty()) {
-            String hashedPassword = passwordEncoder.encode("admin"); // Hachage sécurisé du mot de passe
+            String hashedPassword = passwordEncoder.encode("admin");
 
             User adminUser = new User();
             adminUser.setUsername("admin");
             adminUser.setEmail("admin@example.com");
             adminUser.setPassword(hashedPassword);
 
-            userRepository.save(adminUser); //  Création d'un admin si inexistant
+            userRepository.save(adminUser);
         }
 
-        //  Vérifier si l'utilisateur existe
+        // Vérifier si l'utilisateur existe
         Optional<User> playerOptional = userRepository.findByUsername(authRequest.getUsername());
 
         if (playerOptional.isPresent()) {
             User player = playerOptional.get();
 
-            //  Vérification du mot de passe haché
             if (passwordEncoder.matches(authRequest.getPassword(), player.getPassword())) {
-                String token = jwtUtil.generateToken(player.getUsername()); //  Plus de `NullPointerException`
+                String token = jwtUtil.generateToken(player.getUsername());
                 response.put("token", token);
                 return response;
             }
         }
 
-        //  Authentification échouée
         response.put("error", "Identifiants invalides");
         return response;
     }
 }
+
