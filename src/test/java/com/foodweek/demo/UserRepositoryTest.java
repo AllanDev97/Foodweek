@@ -18,7 +18,7 @@ class UserRepositoryTest {
 
     @Test
     void shouldPerformCrudOnUser() {
-        // 🔹 CREATE
+        // CREATE
         User user = new User();
         user.setUsername("alice");
         user.setEmail("alice@example.com");
@@ -28,17 +28,17 @@ class UserRepositoryTest {
         assertThat(savedUser.getId()).isNotNull();
         assertThat(savedUser.getUsername()).isEqualTo("alice");
 
-        // 🔹 READ
+        // READ
         Optional<User> foundUser = userRepository.findById(savedUser.getId());
         assertThat(foundUser).isPresent();
         assertThat(foundUser.get().getEmail()).isEqualTo("alice@example.com");
 
-        // 🔹 UPDATE
+        // UPDATE
         savedUser.setEmail("updated@example.com");
         User updatedUser = userRepository.save(savedUser);
         assertThat(updatedUser.getEmail()).isEqualTo("updated@example.com");
 
-        // 🔹 DELETE
+        // DELETE
         userRepository.deleteById(updatedUser.getId());
         Optional<User> deletedUser = userRepository.findById(updatedUser.getId());
         assertThat(deletedUser).isEmpty();
@@ -53,12 +53,12 @@ class UserRepositoryTest {
         user.setPassword("pass");
         userRepository.save(user);
 
-        // 🔹 findByUsername
+        // findByUsername
         Optional<User> byUsername = userRepository.findByUsername("bob");
         assertThat(byUsername).isPresent();
         assertThat(byUsername.get().getEmail()).isEqualTo("bob@example.com");
 
-        // 🔹 findByEmail
+        // findByEmail
         Optional<User> byEmail = userRepository.findByEmail("bob@example.com");
         assertThat(byEmail).isPresent();
         assertThat(byEmail.get().getUsername()).isEqualTo("bob");

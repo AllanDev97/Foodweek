@@ -24,14 +24,14 @@ class MealPlanRepositoryTest {
 
     @Test
     void shouldPerformCrudOnMealPlan() {
-        // 🔹 CREATE - enregistrer un utilisateur
+        // CREATE - enregistrer un utilisateur
         User user = new User();
         user.setUsername("john");
         user.setEmail("john@example.com");
         user.setPassword("secret");
         userRepository.save(user);
 
-        // 🔹 CREATE - enregistrer un meal plan
+        // CREATE - enregistrer un meal plan
         MealPlan plan = new MealPlan();
         plan.setUser(user);
         plan.setWeekNumber(10);
@@ -40,17 +40,17 @@ class MealPlanRepositoryTest {
         assertThat(savedPlan.getId()).isNotNull();
         assertThat(savedPlan.getWeekNumber()).isEqualTo(10);
 
-        // 🔹 READ
+        // READ
         Optional<MealPlan> found = mealPlanRepository.findById(savedPlan.getId());
         assertThat(found).isPresent();
         assertThat(found.get().getUser().getUsername()).isEqualTo("john");
 
-        // 🔹 UPDATE
+        // UPDATE
         savedPlan.setWeekNumber(12);
         MealPlan updated = mealPlanRepository.save(savedPlan);
         assertThat(updated.getWeekNumber()).isEqualTo(12);
 
-        // 🔹 DELETE
+        // DELETE
         mealPlanRepository.deleteById(updated.getId());
         Optional<MealPlan> deleted = mealPlanRepository.findById(updated.getId());
         assertThat(deleted).isEmpty();

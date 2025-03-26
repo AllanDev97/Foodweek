@@ -25,7 +25,7 @@ class MessageRepositoryTest {
 
     @Test
     void shouldPerformCrudOnMessage() {
-        // 🔹 CREATE utilisateurs
+        // CREATE utilisateurs
         User sender = new User();
         sender.setUsername("alice");
         sender.setEmail("alice@example.com");
@@ -38,7 +38,7 @@ class MessageRepositoryTest {
         receiver.setPassword("pass");
         userRepository.save(receiver);
 
-        // 🔹 CREATE message
+        // CREATE message
         Message message = new Message();
         message.setSender(sender);
         message.setReceiver(receiver);
@@ -49,17 +49,17 @@ class MessageRepositoryTest {
         assertThat(savedMessage.getId()).isNotNull();
         assertThat(savedMessage.getContent()).isEqualTo("Hello Bob!");
 
-        // 🔹 READ
+        // READ
         Optional<Message> found = messageRepository.findById(savedMessage.getId());
         assertThat(found).isPresent();
         assertThat(found.get().getSender().getUsername()).isEqualTo("alice");
 
-        // 🔹 UPDATE
+        // UPDATE
         savedMessage.setContent("Updated content");
         Message updated = messageRepository.save(savedMessage);
         assertThat(updated.getContent()).isEqualTo("Updated content");
 
-        // 🔹 DELETE
+        // DELETE
         messageRepository.deleteById(updated.getId());
         Optional<Message> deleted = messageRepository.findById(updated.getId());
         assertThat(deleted).isEmpty();

@@ -8,9 +8,10 @@ services:
     depends_on:
       - mysql
     environment:
-      SPRING_DATASOURCE_URL: jdbc:mysql://mysql:3306/foodweek-bd?useSSL=false&serverTimezone=UTC
+      SPRING_DATASOURCE_URL: jdbc:mysql://mysql:3306/foodweek?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC
       SPRING_DATASOURCE_USERNAME: root
       SPRING_DATASOURCE_PASSWORD: rootpassword
+      SPRING_PROFILES_ACTIVE: docker
     networks:
       - foodweek-network
 
@@ -19,16 +20,28 @@ services:
     restart: always
     environment:
       MYSQL_ROOT_PASSWORD: rootpassword
-      MYSQL_DATABASE: foodweek-bd
+      MYSQL_DATABASE: foodweek
     ports:
       - "3306:3306"
     volumes:
       - mysql-data:/var/lib/mysql
     networks:
       - foodweek-network
+  jenkins:
+    image: jenkins/jenkins:lts
+    user: root
+    ports:
+      - "8081:8080"
+      - "50000:50000"
+    volumes:
+      - jenkins_home:/var/jenkins_home
+      - /var/run/docker.sock:/var/run/docker.sock
+    networks:
+      - foodweek-network
 
 volumes:
   mysql-data:
+  jenkins_home:
 
 networks:
   foodweek-network:
