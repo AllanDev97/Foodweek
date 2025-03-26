@@ -36,7 +36,8 @@ public class SecurityConfig {
                     "/api/login",
                     "/api-docs/**",
                     "/swagger-ui/**",
-                    "/swagger-ui.html"
+                    "/swagger-ui.html",
+                    "target/site/jacoco/index.html"
                 ).permitAll()
                 .anyRequest().authenticated()
             )
